@@ -1,0 +1,13 @@
+use_frameworks!
+
+platform :ios, '9.0'
+
+target 'GGFuncSliderViewController_Example' do
+  pod 'GGFuncSliderViewController', :path => '../'
+
+  target 'GGFuncSliderViewController_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
