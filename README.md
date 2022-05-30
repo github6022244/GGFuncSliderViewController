@@ -1,4 +1,5 @@
 # GGFuncSliderViewController
+<<<<<<< HEAD
 
 [![CI Status](https://img.shields.io/travis/1563084860@qq.com/GGFuncSliderViewController.svg?style=flat)](https://travis-ci.org/1563084860@qq.com/GGFuncSliderViewController)
 [![Version](https://img.shields.io/cocoapods/v/GGFuncSliderViewController.svg?style=flat)](https://cocoapods.org/pods/GGFuncSliderViewController)
@@ -34,3 +35,6 @@ pod 'GGFuncSliderViewController'
 ## License
 
 GGFuncSliderViewController is available under the MIT license. See the LICENSE file for more info.
+=======
+iOS 基于 JXCategoryView 封装的分类栏控制器
+>>>>>>> d635fc7d100deaff41969083b326e3d6119d6b23

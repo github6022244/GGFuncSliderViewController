@@ -183,7 +183,7 @@
 }
 
 // 分类栏配置
-- (JXCategoryBaseView *)preferredCategoryView {
+- (JXCategoryTitleView *)preferredCategoryView {
     UIBaseFuncSliderControllerCategoryViewType cType = [self categoryViewType];
     
     switch (cType) {
