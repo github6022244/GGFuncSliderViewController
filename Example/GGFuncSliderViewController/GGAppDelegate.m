@@ -7,12 +7,25 @@
 //
 
 #import "GGAppDelegate.h"
+#import "GGViewController.h"
+#import <QMUIKit/QMUICommonDefines.h>
+#import <QMUIKit/QMUIConfigurationMacros.h>
+#import <QMUIKit.h>
 
 @implementation GGAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // Override point for customization after application launch.
+    self.window = [[UIWindow alloc] initWithFrame:CGRectSetSize(CGRectZero, ScreenBoundsSize)];
+    
+    GGViewController *vc = [GGViewController new];
+    
+    QMUINavigationController *nav = [[QMUINavigationController alloc] initWithRootViewController:vc];
+    
+    self.window.rootViewController = nav;
+    
+    [self.window makeKeyAndVisible];
+    
     return YES;
 }
 

@@ -1,0 +1,6 @@
+framework module Pods_GGFuncSliderViewController_Tests {
+  umbrella header "Pods-GGFuncSliderViewController_Tests-umbrella.h"
+
+  export *
+  module * { export * }
+}

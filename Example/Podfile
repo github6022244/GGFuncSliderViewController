@@ -1,9 +1,18 @@
+source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
 
 platform :ios, '9.0'
 
 target 'GGFuncSliderViewController_Example' do
   pod 'GGFuncSliderViewController', :path => '../'
+
+  pod 'MJRefresh'
+
+  pod 'QMUIKit'
+
+  Pod 'QMUIKit/QMUIMainFrame'
+ 
+  pod 'YYText'
 
   target 'GGFuncSliderViewController_Tests' do
     inherit! :search_paths

@@ -1,13 +1,18 @@
 //
 //  GGViewController.h
-//  GGFuncSliderViewController
+//  GGFuncSliderViewController_Example
 //
-//  Created by 1563084860@qq.com on 05/27/2022.
-//  Copyright (c) 2022 1563084860@qq.com. All rights reserved.
+//  Created by GG on 2022/5/27.
+//  Copyright © 2022 1563084860@qq.com. All rights reserved.
 //
 
-@import UIKit;
+#import <UIKit/UIKit.h>
+#import <GGFuncSliderViewController/UIBaseFuncSliderController.h>
 
-@interface GGViewController : UIViewController
+NS_ASSUME_NONNULL_BEGIN
+
+@interface GGViewController : UIBaseFuncSliderController
 
 @end
+
+NS_ASSUME_NONNULL_END
