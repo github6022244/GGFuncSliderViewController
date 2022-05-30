@@ -64,7 +64,10 @@
 //        }
         UIColor *firstColor = [self navigationBarDefaultAndFullColor].firstObject;
         NSAssert(firstColor, @"在 - (NSArray<UIColor *> *)navigationBarDefaultAndFullColor; 中返回颜色数组");
-        [self.navigationController.navigationBar setBackgroundImage:[UIImage qmui_imageWithColor:firstColor] forBarMetrics:UIBarMetricsDefault];
+        
+        UIImage *bgImage = [UIImage qmui_imageWithColor:firstColor];
+        [self.navigationController.navigationBar setBackgroundImage:bgImage forBarMetrics:UIBarMetricsDefault];
+        self.navigationController.navigationBar.shadowImage = bgImage;
     }
     
     _titles = [self categorySliderTitles];
@@ -298,6 +301,8 @@
             UIImage *navBackImage = [UIImage qmui_imageWithColor:targetColor];
             
             [self.navigationController.navigationBar setBackgroundImage:navBackImage forBarMetrics:UIBarMetricsDefault];
+            
+            self.navigationController.navigationBar.shadowImage = navBackImage;
         }
     }
 }
