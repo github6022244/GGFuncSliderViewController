@@ -286,8 +286,6 @@
         CGFloat percent = scrollView.contentOffset.y / thresholdDistance;
         percent = MAX(0, MIN(1, percent));
         
-//        NSLog(@"\n计划滑动距离: %.f\n当前滑动距离: %.f\n百分比: %.2f", thresholdDistance, scrollView.contentOffset.y, percent);
-        
         NSArray *colorArray = [self navigationBarDefaultAndFullColor];
         
         if (colorArray.count) {
