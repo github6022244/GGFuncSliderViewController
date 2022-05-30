@@ -29,7 +29,7 @@
 - (UIBaseFuncSliderControllerCategoryViewType)categoryViewType;
 /// 返回自定义 categoryView
 /// 有默认实现 可以获取到 self.categoryView
-- (JXCategoryBaseView *)preferredCategoryView;
+- (JXCategoryTitleView *)preferredCategoryView;
 /// 这里可以获取到 self.categoryView，可以重新设置也可以修改其属性
 /// 可以修改 self.categoryView.indicators
 - (void)configCategorySliderStyle;

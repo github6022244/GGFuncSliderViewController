@@ -50,8 +50,6 @@
 
 #pragma mark ------------------------- UI -------------------------
 - (void)gg_setUpUI {
-    self.view.backgroundColor = [UIColor whiteColor];
-    
     if ([self autoAlphaNavigationBar]) {
 //        if (@available(iOS 13.0, *)) {
 //            _pagerView.mainTableView.automaticallyAdjustsScrollIndicatorInsets = NO;
@@ -64,7 +62,9 @@
 //        if (@available(iOS 15.0, *)) {
 //           _pagerView.mainTableView.sectionHeaderTopPadding = 0.f;
 //        }
-        [self.navigationController.navigationBar setBackgroundImage:[UIImage qmui_imageWithColor:[UIColor clearColor]] forBarMetrics:UIBarMetricsDefault];
+        UIColor *firstColor = [self navigationBarDefaultAndFullColor].firstObject;
+        NSAssert(firstColor, @"在 - (NSArray<UIColor *> *)navigationBarDefaultAndFullColor; 中返回颜色数组");
+        [self.navigationController.navigationBar setBackgroundImage:[UIImage qmui_imageWithColor:firstColor] forBarMetrics:UIBarMetricsDefault];
     }
     
     _titles = [self categorySliderTitles];
