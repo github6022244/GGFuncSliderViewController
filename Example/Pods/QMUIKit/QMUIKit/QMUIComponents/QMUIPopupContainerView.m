@@ -1,6 +1,6 @@
 /**
  * Tencent is pleased to support the open source community by making QMUI_iOS available.
- * Copyright (C) 2016-2020 THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2016-2021 THL A29 Limited, a Tencent company. All rights reserved.
  * Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  * http://opensource.org/licenses/MIT
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
@@ -22,6 +22,7 @@
 #import "UIWindow+QMUI.h"
 #import "UIBarItem+QMUI.h"
 #import "QMUIAppearance.h"
+#import "CALayer+QMUI.h"
 
 @interface QMUIPopupContainerViewWindow : UIWindow
 
@@ -39,6 +40,10 @@
 @interface QMUIPopupContainerView () {
     UIImageView                     *_imageView;
     UILabel                         *_textLabel;
+    
+    CALayer                         *_backgroundViewMaskLayer;
+    CAShapeLayer                    *_copiedBackgroundLayer;
+    CALayer                         *_copiedArrowImageLayer;
 }
 
 @property(nonatomic, strong) QMUIPopupContainerViewWindow *popupWindow;
@@ -94,9 +99,39 @@
     return result;
 }
 
+- (void)setBackgroundView:(UIView *)backgroundView {
+    if (_backgroundView && !backgroundView) {
+        [_backgroundView removeFromSuperview];
+    }
+    _backgroundView = backgroundView;
+    if (backgroundView) {
+        [self insertSubview:backgroundView atIndex:0];
+        // backgroundView 必须盖在 _backgroundLayer、_arrowImageView 上面，否则背景色、阴影、箭头图片都会盖在 backgroundView 上方，影响表现
+        [self sendSubviewToBack:_arrowImageView];
+        [self.layer qmui_sendSublayerToBack:_backgroundLayer];
+        if (!_backgroundViewMaskLayer) {
+            _copiedBackgroundLayer = [CAShapeLayer layer];
+            [_copiedBackgroundLayer qmui_removeDefaultAnimations];
+            _copiedBackgroundLayer.fillColor = UIColor.blackColor.CGColor;// 这个 layer 是作为 mask 使用的，所以必须完整填充不透明的颜色，否则会影响 mask 效果
+            
+            _copiedArrowImageLayer = [CALayer layer];
+            [_copiedArrowImageLayer qmui_removeDefaultAnimations];
+            
+            _backgroundViewMaskLayer = [CALayer layer];
+            [_backgroundViewMaskLayer qmui_removeDefaultAnimations];
+            [_backgroundViewMaskLayer addSublayer:_copiedBackgroundLayer];
+            [_backgroundViewMaskLayer addSublayer:_copiedArrowImageLayer];
+        }
+        backgroundView.layer.mask = _backgroundViewMaskLayer;
+    }
+    // 存在 backgroundView 则隐藏原始的箭头，避免在 backgroundView 背后影响显示
+    _arrowImageView.hidden = backgroundView || !self.arrowImage;
+}
+
 - (void)setBackgroundColor:(UIColor *)backgroundColor {
     _backgroundColor = backgroundColor;
     _backgroundLayer.fillColor = _backgroundColor.CGColor;
+    _arrowImageView.tintColor = backgroundColor;
 }
 
 - (void)setMaskViewBackgroundColor:(UIColor *)maskViewBackgroundColor {
@@ -109,6 +144,13 @@
 - (void)setShadowColor:(UIColor *)shadowColor {
     _shadowColor = shadowColor;
     _backgroundLayer.shadowColor = shadowColor.CGColor;
+    if (shadowColor) {
+        _backgroundLayer.shadowOffset = CGSizeMake(0, 2);
+        _backgroundLayer.shadowOpacity = 1;
+        _backgroundLayer.shadowRadius = 10;
+    } else {
+        _backgroundLayer.shadowOpacity = 0;
+    }
 }
 
 - (void)setBorderColor:(UIColor *)borderColor {
@@ -129,19 +171,30 @@
 - (void)setHighlighted:(BOOL)highlighted {
     [super setHighlighted:highlighted];
     if (self.highlightedBackgroundColor) {
-        _backgroundLayer.fillColor = highlighted ? self.highlightedBackgroundColor.CGColor : self.backgroundColor.CGColor;
+        UIColor *color = highlighted ? self.highlightedBackgroundColor : self.backgroundColor;
+        _backgroundLayer.fillColor = color.CGColor;
+        _arrowImageView.tintColor = color;
     }
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {
     CGSize contentLimitSize = [self contentSizeInSize:size];
-    CGSize contentSize = [self sizeThatFitsInContentView:contentLimitSize];
+    CGSize contentSize = CGSizeZero;
+    if (self.contentViewSizeThatFitsBlock) {
+        contentSize = self.contentViewSizeThatFitsBlock(contentLimitSize);
+    } else {
+        contentSize = [self sizeThatFitsInContentView:contentLimitSize];
+    }
     CGSize resultSize = [self sizeWithContentSize:contentSize sizeThatFits:size];
     return resultSize;
 }
 
 - (void)layoutSubviews {
     [super layoutSubviews];
+    BOOL isUsingArrowImage = !!self.arrowImage;
+    CGAffineTransform arrowImageTransform = CGAffineTransformIdentity;
+    CGPoint arrowImagePosition = CGPointZero;
+    
     CGSize arrowSize = self.arrowSizeAuto;
     CGRect roundedRect = CGRectMake(self.borderWidth / 2.0 + (self.currentLayoutDirection == QMUIPopupContainerViewLayoutDirectionRight ? arrowSize.width : 0),
                                     self.borderWidth / 2.0 + (self.currentLayoutDirection == QMUIPopupContainerViewLayoutDirectionBelow ? arrowSize.height : 0),
@@ -161,9 +214,14 @@
     
     if (self.currentLayoutDirection == QMUIPopupContainerViewLayoutDirectionRight) {
         // 箭头向左
-        [path addLineToPoint:CGPointMake(CGRectGetMinX(roundedRect), _arrowMinY)];
-        [path addLineToPoint:CGPointMake(CGRectGetMinX(roundedRect) - arrowSize.width, _arrowMinY + arrowSize.height / 2)];
-        [path addLineToPoint:CGPointMake(CGRectGetMinX(roundedRect), _arrowMinY + arrowSize.height)];
+        if (isUsingArrowImage) {
+            arrowImageTransform = CGAffineTransformMakeRotation(AngleWithDegrees(90));
+            arrowImagePosition = CGPointMake(arrowSize.width / 2, _arrowMinY + arrowSize.height / 2);
+        } else {
+            [path addLineToPoint:CGPointMake(CGRectGetMinX(roundedRect), _arrowMinY)];
+            [path addLineToPoint:CGPointMake(CGRectGetMinX(roundedRect) - arrowSize.width, _arrowMinY + arrowSize.height / 2)];
+            [path addLineToPoint:CGPointMake(CGRectGetMinX(roundedRect), _arrowMinY + arrowSize.height)];
+        }
     }
     
     [path addLineToPoint:CGPointMake(CGRectGetMinX(roundedRect), leftBottomArcCenter.y)];
@@ -171,9 +229,13 @@
     
     if (self.currentLayoutDirection == QMUIPopupContainerViewLayoutDirectionAbove) {
         // 箭头向下
-        [path addLineToPoint:CGPointMake(_arrowMinX, CGRectGetMaxY(roundedRect))];
-        [path addLineToPoint:CGPointMake(_arrowMinX + arrowSize.width / 2, CGRectGetMaxY(roundedRect) + arrowSize.height)];
-        [path addLineToPoint:CGPointMake(_arrowMinX + arrowSize.width, CGRectGetMaxY(roundedRect))];
+        if (isUsingArrowImage) {
+            arrowImagePosition = CGPointMake(_arrowMinX + arrowSize.width / 2, CGRectGetHeight(self.bounds) - arrowSize.height / 2);
+        } else {
+            [path addLineToPoint:CGPointMake(_arrowMinX, CGRectGetMaxY(roundedRect))];
+            [path addLineToPoint:CGPointMake(_arrowMinX + arrowSize.width / 2, CGRectGetMaxY(roundedRect) + arrowSize.height)];
+            [path addLineToPoint:CGPointMake(_arrowMinX + arrowSize.width, CGRectGetMaxY(roundedRect))];
+        }
     }
     
     [path addLineToPoint:CGPointMake(rightBottomArcCenter.x, CGRectGetMaxY(roundedRect))];
@@ -181,9 +243,14 @@
     
     if (self.currentLayoutDirection == QMUIPopupContainerViewLayoutDirectionLeft) {
         // 箭头向右
-        [path addLineToPoint:CGPointMake(CGRectGetMaxX(roundedRect), _arrowMinY + arrowSize.height)];
-        [path addLineToPoint:CGPointMake(CGRectGetMaxX(roundedRect) + arrowSize.width, _arrowMinY + arrowSize.height / 2)];
-        [path addLineToPoint:CGPointMake(CGRectGetMaxX(roundedRect), _arrowMinY)];
+        if (isUsingArrowImage) {
+            arrowImageTransform = CGAffineTransformMakeRotation(AngleWithDegrees(-90));
+            arrowImagePosition = CGPointMake(CGRectGetWidth(self.bounds) - arrowSize.width / 2, _arrowMinY + arrowSize.height / 2);
+        } else {
+            [path addLineToPoint:CGPointMake(CGRectGetMaxX(roundedRect), _arrowMinY + arrowSize.height)];
+            [path addLineToPoint:CGPointMake(CGRectGetMaxX(roundedRect) + arrowSize.width, _arrowMinY + arrowSize.height / 2)];
+            [path addLineToPoint:CGPointMake(CGRectGetMaxX(roundedRect), _arrowMinY)];
+        }
     }
     
     [path addLineToPoint:CGPointMake(CGRectGetMaxX(roundedRect), rightTopArcCenter.y)];
@@ -191,15 +258,39 @@
     
     if (self.currentLayoutDirection == QMUIPopupContainerViewLayoutDirectionBelow) {
         // 箭头向上
-        [path addLineToPoint:CGPointMake(_arrowMinX + arrowSize.width, CGRectGetMinY(roundedRect))];
-        [path addLineToPoint:CGPointMake(_arrowMinX + arrowSize.width / 2, CGRectGetMinY(roundedRect) - arrowSize.height)];
-        [path addLineToPoint:CGPointMake(_arrowMinX, CGRectGetMinY(roundedRect))];
+        if (isUsingArrowImage) {
+            arrowImageTransform = CGAffineTransformMakeRotation(AngleWithDegrees(-180));
+            arrowImagePosition = CGPointMake(_arrowMinX + arrowSize.width / 2, arrowSize.height / 2);
+        } else {
+            [path addLineToPoint:CGPointMake(_arrowMinX + arrowSize.width, CGRectGetMinY(roundedRect))];
+            [path addLineToPoint:CGPointMake(_arrowMinX + arrowSize.width / 2, CGRectGetMinY(roundedRect) - arrowSize.height)];
+            [path addLineToPoint:CGPointMake(_arrowMinX, CGRectGetMinY(roundedRect))];
+        }
     }
     [path closePath];
     
     _backgroundLayer.path = path.CGPath;
     _backgroundLayer.shadowPath = path.CGPath;
     _backgroundLayer.frame = self.bounds;
+    
+    if (isUsingArrowImage) {
+        _arrowImageView.transform = arrowImageTransform;
+        _arrowImageView.center = arrowImagePosition;
+    }
+    
+    if (self.backgroundView) {
+        self.backgroundView.frame = self.bounds;
+        _backgroundViewMaskLayer.frame = self.bounds;
+        
+        _copiedBackgroundLayer.path = _backgroundLayer.path;
+        _copiedBackgroundLayer.frame = _backgroundLayer.frame;
+        
+        _copiedArrowImageLayer.bounds = _arrowImageView.bounds;
+        _copiedArrowImageLayer.affineTransform = arrowImageTransform;
+        _copiedArrowImageLayer.position = arrowImagePosition;
+        _copiedArrowImageLayer.contents = (id)_arrowImageView.image.CGImage;
+        _copiedArrowImageLayer.contentsScale = _arrowImageView.image.scale;
+    }
     
     [self layoutDefaultSubviews];
 }
@@ -303,13 +394,17 @@
         CGSize result = CGSizeZero;
         if (self.isVerticalLayoutDirection) {
             result.width = CGRectGetWidth(containerRect) - UIEdgeInsetsGetHorizontalValue(self.safetyMarginsAvoidSafeAreaInsets);
-        } else {
-            result.width = CGFLOAT_MAX;
+        } else if (self.currentLayoutDirection == QMUIPopupContainerViewLayoutDirectionLeft) {
+            result.width = CGRectGetMinX(targetRect) - self.distanceBetweenSource - self.safetyMarginsAvoidSafeAreaInsets.left;
+        } else if (self.currentLayoutDirection == QMUIPopupContainerViewLayoutDirectionRight) {
+            result.width = CGRectGetWidth(containerRect) - self.safetyMarginsAvoidSafeAreaInsets.right - self.distanceBetweenSource - CGRectGetMaxX(targetRect);
         }
         if (self.isHorizontalLayoutDirection) {
             result.height = CGRectGetHeight(containerRect) - UIEdgeInsetsGetVerticalValue(self.safetyMarginsAvoidSafeAreaInsets);
-        } else {
-            result.height = CGFLOAT_MAX;
+        } else if (self.currentLayoutDirection == QMUIPopupContainerViewLayoutDirectionAbove) {
+            result.height = CGRectGetMinY(targetRect) - self.distanceBetweenSource - self.safetyMarginsAvoidSafeAreaInsets.top;
+        } else if (self.currentLayoutDirection == QMUIPopupContainerViewLayoutDirectionBelow) {
+            result.height = CGRectGetHeight(containerRect) - self.safetyMarginsAvoidSafeAreaInsets.bottom - self.distanceBetweenSource - CGRectGetMaxY(targetRect);
         }
         result = CGSizeMake(MIN(self.maximumWidth, result.width), MIN(self.maximumHeight, result.height));
         return result;
@@ -661,12 +756,12 @@
 /// 根据内容大小和外部限制的大小，计算出合适的self size（包含箭头）
 - (CGSize)sizeWithContentSize:(CGSize)contentSize sizeThatFits:(CGSize)sizeThatFits {
     CGFloat resultWidth = contentSize.width + UIEdgeInsetsGetHorizontalValue(self.contentEdgeInsets) + self.borderWidth * 2 + self.arrowSpacingInHorizontal;
-    resultWidth = MIN(resultWidth, sizeThatFits.width);// 宽度不能超过传进来的size.width
+//    resultWidth = MIN(resultWidth, sizeThatFits.width);// 宽度不能超过传进来的size.width
     resultWidth = MAX(MIN(resultWidth, self.maximumWidth), self.minimumWidth);// 宽度必须在最小值和最大值之间
     resultWidth = ceil(resultWidth);
     
     CGFloat resultHeight = contentSize.height + UIEdgeInsetsGetVerticalValue(self.contentEdgeInsets) + self.borderWidth * 2 + self.arrowSpacingInVertical;
-    resultHeight = MIN(resultHeight, sizeThatFits.height);
+//    resultHeight = MIN(resultHeight, sizeThatFits.height);
     resultHeight = MAX(MIN(resultHeight, self.maximumHeight), self.minimumHeight);
     resultHeight = ceil(resultHeight);
     
@@ -679,6 +774,31 @@
 
 - (BOOL)isVerticalLayoutDirection {
     return self.preferLayoutDirection == QMUIPopupContainerViewLayoutDirectionAbove || self.preferLayoutDirection == QMUIPopupContainerViewLayoutDirectionBelow;
+}
+
+- (void)setArrowImage:(UIImage *)arrowImage {
+    _arrowImage = arrowImage;
+    if (arrowImage) {
+        _arrowSize = arrowImage.size;
+        
+        if (!_arrowImageView) {
+            _arrowImageView = UIImageView.new;
+            _arrowImageView.tintColor = self.backgroundColor;
+            [self addSubview:_arrowImageView];
+        }
+        _arrowImageView.hidden = !!self.backgroundView;// 存在 backgroundView 时不要显示箭头（但依然要设置 _arrowImageView 的内容，以供 mask 用）
+        _arrowImageView.image = arrowImage;
+        _arrowImageView.bounds = CGRectMakeWithSize(arrowImage.size);
+    } else {
+        _arrowImageView.hidden = YES;
+        _arrowImageView.image = nil;
+    }
+}
+
+- (void)setArrowSize:(CGSize)arrowSize {
+    if (!self.arrowImage) {
+        _arrowSize = arrowSize;
+    }
 }
 
 // self.arrowSize 规定的是上下箭头的宽高，如果 tip 布局在左右的话，arrowSize 的宽高则调转
@@ -697,11 +817,11 @@
 - (UIEdgeInsets)safetyMarginsAvoidSafeAreaInsets {
     UIEdgeInsets result = self.safetyMarginsOfSuperview;
     if (self.isHorizontalLayoutDirection) {
-        result.left += self.superview.qmui_safeAreaInsets.left;
-        result.right += self.superview.qmui_safeAreaInsets.right;
+        result.left += self.superview.safeAreaInsets.left;
+        result.right += self.superview.safeAreaInsets.right;
     } else {
-        result.top += self.superview.qmui_safeAreaInsets.top;
-        result.bottom += self.superview.qmui_safeAreaInsets.bottom;
+        result.top += self.superview.safeAreaInsets.top;
+        result.bottom += self.superview.safeAreaInsets.bottom;
     }
     return result;
 }
@@ -712,9 +832,7 @@
 
 - (void)didInitialize {
     _backgroundLayer = [CAShapeLayer layer];
-    _backgroundLayer.shadowOffset = CGSizeMake(0, 2);
-    _backgroundLayer.shadowOpacity = 1;
-    _backgroundLayer.shadowRadius = 10;
+    [_backgroundLayer qmui_removeDefaultAnimations];
     [self.layer addSublayer:_backgroundLayer];
     
     _contentView = [[UIView alloc] init];
@@ -748,8 +866,6 @@
         resultSize.width += (isImageViewShowing ? self.imageEdgeInsets.right : 0) + ceil(textLabelSize.width) + self.textEdgeInsets.left;
         resultSize.height = MAX(resultSize.height, ceil(textLabelSize.height) + self.textEdgeInsets.top);
     }
-    resultSize.width = MIN(size.width, resultSize.width);
-    resultSize.height = MIN(size.height, resultSize.height);
     return resultSize;
 }
 
@@ -775,7 +891,7 @@
     appearance.preferLayoutDirection = QMUIPopupContainerViewLayoutDirectionAbove;
     appearance.distanceBetweenSource = 5;
     appearance.safetyMarginsOfSuperview = UIEdgeInsetsMake(10, 10, 10, 10);
-    appearance.backgroundColor = UIColorWhite;
+    appearance.backgroundColor = UIColorWhite;// 如果先设置了 UIView.appearance.backgroundColor，再使用最传统的 method_exchangeImplementations 交换 UIView.setBackgroundColor 方法，则会 crash。QMUI 这里是在 +initialize 时设置的，业务如果要 hook -[UIView setBackgroundColor:] 则需要比 +initialize 更早才行
     appearance.maskViewBackgroundColor = UIColorMask;
     appearance.highlightedBackgroundColor = nil;
     appearance.shadowColor = UIColorMakeWithRGBA(0, 0, 0, .1);
