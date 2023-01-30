@@ -66,7 +66,8 @@
         NSAssert(firstColor, @"在 - (NSArray<UIColor *> *)navigationBarDefaultAndFullColor; 中返回颜色数组");
         
         UIImage *bgImage = [UIImage qmui_imageWithColor:firstColor];
-        [self.navigationController.navigationBar setBackgroundImage:bgImage forBarMetrics:UIBarMetricsDefault];
+//        [self.navigationController.navigationBar setBackgroundImage:bgImage forBarMetrics:UIBarMetricsDefault];
+        self.navigationController.navigationBar.tintColor = firstColor;
         self.navigationController.navigationBar.shadowImage = bgImage;
     }
     

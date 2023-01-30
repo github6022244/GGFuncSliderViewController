@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'GGFuncSliderViewController'
-  s.version          = '0.1.4'
+  s.version          = '0.1.5'
   s.summary          = 'iOS 基于 JXCategoryView 封装的分类栏控制器'
 
 # This description is used to generate tags and improve search results.
@@ -44,6 +44,6 @@ TODO: Add long description of the pod here.
 #  s.dependency 'JXPagingView/Pager'
 #  s.dependency 'JXCategoryView'
   s.dependency 'JXPagingView/Pager', '2.1.2'
-  s.dependency 'JXCategoryView', '1.6.0'
-  s.dependency 'QMUIKit/QMUICore', '4.4.3'
+  s.dependency 'JXCategoryView', '1.6.1'
+  s.dependency 'QMUIKit/QMUICore'
 end

@@ -42,39 +42,34 @@ QMUISynthesizeBOOLProperty(qmuiscroll_hasSetInitialContentInset, setQmuiscroll_h
                 NSString *result = originSelectorIMP(selfObject, originCMD);
                 
                 if (NSThread.isMainThread) {
-                    result = ([NSString stringWithFormat:@"%@, contentInset = %@", result, NSStringFromUIEdgeInsets(selfObject.contentInset)]);
-                    if (@available(iOS 13.0, *)) {
-                        result = result.mutableCopy;
-                    }
+                    result = ([NSString stringWithFormat:@"%@, contentInset = %@", result, NSStringFromUIEdgeInsets(selfObject.contentInset)]).mutableCopy;
                 }
                 return result;
             };
         });
         
-        if (@available(iOS 13.0, *)) {
-            if (QMUICMIActivated && AdjustScrollIndicatorInsetsByContentInsetAdjustment) {
-                OverrideImplementation([UIScrollView class], @selector(setContentInsetAdjustmentBehavior:), ^id(__unsafe_unretained Class originClass, SEL originCMD, IMP (^originalIMPProvider)(void)) {
-                    return ^(UIScrollView *selfObject, UIScrollViewContentInsetAdjustmentBehavior firstArgv) {
-                        
-                        // call super
-                        void (*originSelectorIMP)(id, SEL, UIScrollViewContentInsetAdjustmentBehavior);
-                        originSelectorIMP = (void (*)(id, SEL, UIScrollViewContentInsetAdjustmentBehavior))originalIMPProvider();
-                        originSelectorIMP(selfObject, originCMD, firstArgv);
-                        
-                        if (firstArgv == UIScrollViewContentInsetAdjustmentNever) {
-                            selfObject.automaticallyAdjustsScrollIndicatorInsets = NO;
-                        } else {
-                            selfObject.automaticallyAdjustsScrollIndicatorInsets = YES;
-                        }
-                    };
-                });
-            }
+        if (QMUICMIActivated && AdjustScrollIndicatorInsetsByContentInsetAdjustment) {
+            OverrideImplementation([UIScrollView class], @selector(setContentInsetAdjustmentBehavior:), ^id(__unsafe_unretained Class originClass, SEL originCMD, IMP (^originalIMPProvider)(void)) {
+                return ^(UIScrollView *selfObject, UIScrollViewContentInsetAdjustmentBehavior firstArgv) {
+                    
+                    // call super
+                    void (*originSelectorIMP)(id, SEL, UIScrollViewContentInsetAdjustmentBehavior);
+                    originSelectorIMP = (void (*)(id, SEL, UIScrollViewContentInsetAdjustmentBehavior))originalIMPProvider();
+                    originSelectorIMP(selfObject, originCMD, firstArgv);
+                    
+                    if (firstArgv == UIScrollViewContentInsetAdjustmentNever) {
+                        selfObject.automaticallyAdjustsScrollIndicatorInsets = NO;
+                    } else {
+                        selfObject.automaticallyAdjustsScrollIndicatorInsets = YES;
+                    }
+                };
+            });
         }
     });
 }
 
 - (BOOL)qmui_alreadyAtTop {
-    if (((NSInteger)self.contentOffset.y) == -((NSInteger)self.adjustedContentInset.top)) {
+    if (CGFloatEqualToFloat(self.contentOffset.y, -self.adjustedContentInset.top)) {
         return YES;
     }
     

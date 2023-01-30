@@ -72,35 +72,33 @@ QMUISynthesizeIdStrongProperty(qmui_interactiveGestureDelegator, setQmui_interac
         });
         
         // iOS 12 及以前，initWithNavigationBarClass:toolbarClass:、initWithRootViewController: 会调用 initWithNibName:bundle:，所以这两个方法在 iOS 12 下不需要再次调用 qmui_didInitialize 了。
-        if (@available(iOS 13.0, *)) {
-            OverrideImplementation([UINavigationController class], @selector(initWithNavigationBarClass:toolbarClass:), ^id(__unsafe_unretained Class originClass, SEL originCMD, IMP (^originalIMPProvider)(void)) {
-                return ^UINavigationController *(UINavigationController *selfObject, Class firstArgv, Class secondArgv) {
-                    
-                    // call super
-                    UINavigationController *(*originSelectorIMP)(id, SEL, Class, Class);
-                    originSelectorIMP = (UINavigationController *(*)(id, SEL, Class, Class))originalIMPProvider();
-                    UINavigationController *result = originSelectorIMP(selfObject, originCMD, firstArgv, secondArgv);
-                    
-                    [selfObject qmui_didInitialize];
-                    
-                    return result;
-                };
-            });
-            
-            OverrideImplementation([UINavigationController class], @selector(initWithRootViewController:), ^id(__unsafe_unretained Class originClass, SEL originCMD, IMP (^originalIMPProvider)(void)) {
-                return ^UINavigationController *(UINavigationController *selfObject, UIViewController *firstArgv) {
-                    
-                    // call super
-                    UINavigationController *(*originSelectorIMP)(id, SEL, UIViewController *);
-                    originSelectorIMP = (UINavigationController *(*)(id, SEL, UIViewController *))originalIMPProvider();
-                    UINavigationController *result = originSelectorIMP(selfObject, originCMD, firstArgv);
-                    
-                    [selfObject qmui_didInitialize];
-                    
-                    return result;
-                };
-            });
-        }
+        OverrideImplementation([UINavigationController class], @selector(initWithNavigationBarClass:toolbarClass:), ^id(__unsafe_unretained Class originClass, SEL originCMD, IMP (^originalIMPProvider)(void)) {
+            return ^UINavigationController *(UINavigationController *selfObject, Class firstArgv, Class secondArgv) {
+                
+                // call super
+                UINavigationController *(*originSelectorIMP)(id, SEL, Class, Class);
+                originSelectorIMP = (UINavigationController *(*)(id, SEL, Class, Class))originalIMPProvider();
+                UINavigationController *result = originSelectorIMP(selfObject, originCMD, firstArgv, secondArgv);
+                
+                [selfObject qmui_didInitialize];
+                
+                return result;
+            };
+        });
+        
+        OverrideImplementation([UINavigationController class], @selector(initWithRootViewController:), ^id(__unsafe_unretained Class originClass, SEL originCMD, IMP (^originalIMPProvider)(void)) {
+            return ^UINavigationController *(UINavigationController *selfObject, UIViewController *firstArgv) {
+                
+                // call super
+                UINavigationController *(*originSelectorIMP)(id, SEL, UIViewController *);
+                originSelectorIMP = (UINavigationController *(*)(id, SEL, UIViewController *))originalIMPProvider();
+                UINavigationController *result = originSelectorIMP(selfObject, originCMD, firstArgv);
+                
+                [selfObject qmui_didInitialize];
+                
+                return result;
+            };
+        });
         
         
         ExtendImplementationOfVoidMethodWithoutArguments([UINavigationController class], @selector(viewDidLoad), ^(UINavigationController *selfObject) {
@@ -252,10 +250,22 @@ QMUISynthesizeIdStrongProperty(qmui_interactiveGestureDelegator, setQmui_interac
                 
                 [selfObject setQmui_navigationAction:QMUINavigationActionDidPop animated:animated appearingViewController:appearingViewController disappearingViewControllers:disappearingViewControllers];
                 
-                [selfObject qmui_animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+                void (^transitionCompletion)(void) = ^void(void) {
                     [selfObject setQmui_navigationAction:QMUINavigationActionPopCompleted animated:animated appearingViewController:appearingViewController disappearingViewControllers:disappearingViewControllers];
                     [selfObject setQmui_navigationAction:QMUINavigationActionUnknow animated:animated appearingViewController:nil disappearingViewControllers:nil];
-                }];
+                };
+                if (!result) {
+                    // 如果系统的 pop 没有成功，实际上提交给 animateAlongsideTransition:completion: 的 completion 并不会被执行，所以这里改为手动调用
+                    if (transitionCompletion) {
+                        transitionCompletion();
+                    }
+                } else {
+                    [selfObject qmui_animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+                        if (transitionCompletion) {
+                            transitionCompletion();
+                        }
+                    }];
+                }
                 
                 return result;
             };
@@ -530,7 +540,8 @@ static char kAssociatedObjectKey_navigationAction;
         BOOL canPopViewController = [self.parentViewController canPopViewController:self.parentViewController.topViewController byPopGesture:YES];
         if (canPopViewController) {
             if ([self.parentViewController.qmui_interactivePopGestureRecognizerDelegate respondsToSelector:_cmd]) {
-                return [self.parentViewController.qmui_interactivePopGestureRecognizerDelegate gestureRecognizerShouldBegin:gestureRecognizer];
+                BOOL result = [self.parentViewController.qmui_interactivePopGestureRecognizerDelegate gestureRecognizerShouldBegin:gestureRecognizer];
+                return result;
             } else {
                 return NO;
             }
@@ -558,7 +569,8 @@ static char kAssociatedObjectKey_navigationAction;
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
     if (gestureRecognizer == self.parentViewController.interactivePopGestureRecognizer) {
         if ([self.parentViewController.qmui_interactivePopGestureRecognizerDelegate respondsToSelector:_cmd]) {
-            return [self.parentViewController.qmui_interactivePopGestureRecognizerDelegate gestureRecognizer:gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:otherGestureRecognizer];
+            BOOL result = [self.parentViewController.qmui_interactivePopGestureRecognizerDelegate gestureRecognizer:gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:otherGestureRecognizer];
+            return result;
         }
     }
     return NO;

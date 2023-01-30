@@ -8,12 +8,8 @@
 
 #import "GGViewController.h"
 #import "GGSubViewController.h"
-#import <QMUIKit/UIColor+QMUI.h>
 #import <MJRefresh/MJRefresh.h>
-#import <QMUIKit/QMUICommonDefines.h>
-#import <QMUIKit/QMUIConfigurationMacros.h>
-#import <QMUIKit/UIView+QMUI.h>
-#import <QMUIKit/UIImage+QMUI.h>
+#import <QMUIKit.h>
 #import <YYText.h>
 
 @interface GGViewController ()
@@ -21,6 +17,8 @@
 @property (nonatomic, strong) NSArray *subControllersArray;// 存储子控制器的数组
 
 @property (nonatomic, strong) UIView *headerView;// header view
+
+@property (nonatomic, strong) QMUINavigationButton *navButton;
 
 @end
 
@@ -79,6 +77,24 @@
     self.navigationController.navigationBar.titleTextAttributes = @{
         NSForegroundColorAttributeName: UIColorClear,
     };
+    
+    QMUINavigationButton *navButton = [[QMUINavigationButton alloc] initWithType:QMUINavigationButtonTypeNormal];
+    _navButton = navButton;
+    [navButton setTitle:@"测试" forState:UIControlStateNormal];
+//    navButton.adjustsImageTintColorAutomatically = NO;
+    [navButton setTitleColor:UIColorWhite forState:UIControlStateNormal];
+    
+//    /// 注意：如果导航栏的 tintColor 随滑动改变
+//    /// UIBarButtonItem 的 tintColor 随父视图改变，所以需要在 tintColorDidChange 里重新指定文字颜色，否则其颜色随父视图 tintColor 改变，就会看不到文字了(与导航栏背景色一致了)
+//    __weak __typeof(self)weakSelf = self;
+//    navButton.qmui_tintColorDidChangeBlock = ^(__kindof UIView * _Nonnull view) {
+//        weakSelf.navButton.tintColor = UIColorWhite;
+//    };
+    
+    UIBarButtonItem *item = [UIBarButtonItem qmui_itemWithButton:navButton target:self action:nil];
+    // 勿用 self.navigationController.navigationItem.xxx ，不起作用
+//    self.navigationController.navigationItem.rightBarButtonItem = item;
+    self.navigationItem.rightBarButtonItem = item;
 }
 
 #pragma mark ------------------------- Delegate -------------------------

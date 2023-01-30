@@ -64,8 +64,8 @@ NSString *const QMUICommonTableViewControllerSectionFooterIdentifier = @"QMUISec
 
 - (void)dealloc {
     // 用下划线而不是self.xxx来访问tableView，避免dealloc时self.view尚未被加载，此时调用self.tableView反而会触发loadView
-    _tableView.delegate = nil;
     _tableView.dataSource = nil;
+    _tableView.delegate = nil;
 }
 
 - (NSString *)description {
@@ -245,7 +245,7 @@ NSString *const QMUICommonTableViewControllerSectionFooterIdentifier = @"QMUISec
         }
     }
     // 分别测试过 iOS 13 及以下的所有版本，最终总结，对于 Plain 类型的 tableView 而言，要去掉 header / footer 请使用 0，对于 Grouped 类型的 tableView 而言，要去掉 header / footer 请使用 CGFLOAT_MIN
-    return PreferredValueForTableViewStyle(tableView.qmui_style, 0, TableViewGroupedSectionHeaderDefaultHeight, TableViewInsetGroupedSectionHeaderDefaultHeight);
+    return PreferredValueForTableViewStyle(tableView.style, 0, TableViewGroupedSectionHeaderDefaultHeight, TableViewInsetGroupedSectionHeaderDefaultHeight);
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
@@ -257,7 +257,7 @@ NSString *const QMUICommonTableViewControllerSectionFooterIdentifier = @"QMUISec
         }
     }
     // 分别测试过 iOS 13 及以下的所有版本，最终总结，对于 Plain 类型的 tableView 而言，要去掉 header / footer 请使用 0，对于 Grouped 类型的 tableView 而言，要去掉 header / footer 请使用 CGFLOAT_MIN
-    return PreferredValueForTableViewStyle(tableView.qmui_style, 0, TableViewGroupedSectionFooterDefaultHeight, TableViewInsetGroupedSectionFooterDefaultHeight);
+    return PreferredValueForTableViewStyle(tableView.style, 0, TableViewGroupedSectionFooterDefaultHeight, TableViewInsetGroupedSectionFooterDefaultHeight);
 }
 
 // 是否有定义某个section的header title
@@ -302,8 +302,10 @@ NSString *const QMUICommonTableViewControllerSectionFooterIdentifier = @"QMUISec
 - (void)initTableView {
     if (!_tableView) {
         self.tableView = [[QMUITableView alloc] initWithFrame:self.isViewLoaded ? self.view.bounds : CGRectZero style:self.style];
-        _tableView.delegate = self;
+        // setDataSource: 不会触发 tableView reload，而 setDelegate: 可以，所以把 setDelegate: 放在后面，保证 reload 时能访问到 dataSource 里的数据源。
+        // 否则如果列表开启了 estimated，然后在 viewDidLoad 里设置 tableHeaderView，则 setTableHeaderView: 时由于 setDataSource: 后 tableView 其实没再刷新过，所以内部依然认为 numberOfSections 是默认的1，于是就会去调用 numberOfRows，如果此时 numberOfRows 里用 indexPath 作为下标去访问数据源就会产生越界（因为此时数据源可能还是空的）
         _tableView.dataSource = self;
+        _tableView.delegate = self;
     }
 }
 

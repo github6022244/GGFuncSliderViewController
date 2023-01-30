@@ -281,7 +281,7 @@ const UIEdgeInsets kSystemTextViewFixTextInsets = {0, 5, 0, 5};
     // 用 dispatch 延迟一下，因为在文字发生换行时，系统自己会做一些滚动，我们要延迟一点才能避免被系统的滚动覆盖
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         textView.shouldRejectSystemScroll = NO;
-        [textView qmui_scrollCaretVisibleAnimated:NO];
+        [textView qmui_scrollCaretVisibleAnimated:YES];
     });
 }
 
@@ -315,7 +315,15 @@ const UIEdgeInsets kSystemTextViewFixTextInsets = {0, 5, 0, 5};
     // https://github.com/Tencent/QMUI_iOS/issues/557
     frame = CGRectFlatted(frame);
     
+    // 系统的 UITextView 只要调用 setFrame: 不管 rect 有没有变化都会触发 setContentOffset，引起最后一行输入过程中文字抖动的问题，所以这里屏蔽掉
+    BOOL sizeChanged = !CGSizeEqualToSize(frame.size, self.frame.size);
+    if (!sizeChanged) {
+        self.shouldRejectSystemScroll = YES;
+    }
     [super setFrame:frame];
+    if (!sizeChanged) {
+        self.shouldRejectSystemScroll = NO;
+    }
 }
 
 - (void)setBounds:(CGRect)bounds {
@@ -403,6 +411,9 @@ const UIEdgeInsets kSystemTextViewFixTextInsets = {0, 5, 0, 5};
         // 如果是中文输入法正在输入拼音的过程中（markedTextRange 不为 nil），是不应该限制字数的（例如输入“huang”这5个字符，其实只是为了输入“黄”这一个字符）
         // 注意当点击了候选词后触发的那一次 textView:shouldChangeTextInRange:replacementText:，此时的 marktedTextRange 依然存在，尚未被清除，所以这种情况下的字符长度限制逻辑会交给 handleTextChanged: 那边处理。
         if (textView.markedTextRange) {
+            if ([textView.delegate respondsToSelector:@selector(textView:shouldChangeTextInRange:replacementText:originalValue:)]) {
+                return [textView.delegate textView:textView shouldChangeTextInRange:range replacementText:text originalValue:YES];
+            }
             return YES;
         }
         
@@ -421,6 +432,9 @@ const UIEdgeInsets kSystemTextViewFixTextInsets = {0, 5, 0, 5};
         
         if (!text.length && range.length > 0) {
             // 允许删除，这段必须放在上面 #377、#1170 的逻辑后面
+            if ([textView.delegate respondsToSelector:@selector(textView:shouldChangeTextInRange:replacementText:originalValue:)]) {
+                return [textView.delegate textView:textView shouldChangeTextInRange:range replacementText:text originalValue:YES];
+            }
             return YES;
         }
         
@@ -439,7 +453,7 @@ const UIEdgeInsets kSystemTextViewFixTextInsets = {0, 5, 0, 5};
                 if ([textView lengthWithString:allowedText] <= substringLength) {
                     BOOL shouldChange = YES;
                     if ([textView.delegate respondsToSelector:@selector(textView:shouldChangeTextInRange:replacementText:originalValue:)]) {
-                        shouldChange = [textView.delegate textView:textView shouldChangeTextInRange:range replacementText:text originalValue:shouldChange];
+                        shouldChange = [textView.delegate textView:textView shouldChangeTextInRange:range replacementText:text originalValue:YES];
                     }
                     if (!shouldChange) {
                         return NO;
@@ -463,8 +477,7 @@ const UIEdgeInsets kSystemTextViewFixTextInsets = {0, 5, 0, 5};
     }
     
     if ([textView.delegate respondsToSelector:@selector(textView:shouldChangeTextInRange:replacementText:originalValue:)]) {
-        BOOL delegateValue = [textView.delegate textView:textView shouldChangeTextInRange:range replacementText:text originalValue:YES];
-        return delegateValue;
+        return [textView.delegate textView:textView shouldChangeTextInRange:range replacementText:text originalValue:YES];
     }
     
     return YES;

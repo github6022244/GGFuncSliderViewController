@@ -25,6 +25,7 @@
 #import "QMUILog.h"
 #import "QMUIMultipleDelegates.h"
 #import "QMUIWeakObjectContainer.h"
+#import <AVKit/AVKit.h>
 
 @protocol QMUI_viewWillAppearNotifyDelegate <NSObject>
 
