@@ -2,7 +2,7 @@ PODS:
   - GGFuncSliderViewController (0.1.9):
     - JXCategoryView (= 1.6.1)
     - JXPagingView/Pager (= 2.1.2)
-    - QMUIKit
+    - QMUIKit (= 4.7.0)
   - JXCategoryView (1.6.1)
   - JXPagingView/Pager (2.1.2)
   - MJRefresh (3.7.5)
@@ -323,7 +323,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  GGFuncSliderViewController: c6240e9a87e5878171f98df4c9d2da992e992e75
+  GGFuncSliderViewController: 5ab121969d7791101858154696bb37cec087ac94
   JXCategoryView: 7b1ee69ede4843c581688afe84d0f047723262f2
   JXPagingView: 90924b364a2ff7e94db534fad1fa50925ff69ee4
   MJRefresh: fdf5e979eb406a0341468932d1dfc8b7f9fce961

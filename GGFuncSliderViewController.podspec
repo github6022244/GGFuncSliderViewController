@@ -45,5 +45,5 @@ TODO: Add long description of the pod here.
 #  s.dependency 'JXCategoryView'
   s.dependency 'JXPagingView/Pager', '2.1.2'
   s.dependency 'JXCategoryView', '1.6.1'
-  s.dependency 'QMUIKit'
+  s.dependency 'QMUIKit', '4.7.0'
 end
