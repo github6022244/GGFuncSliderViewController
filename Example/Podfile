@@ -8,7 +8,7 @@ target 'GGFuncSliderViewController_Example' do
 
   pod 'MJRefresh'
 
-  pod 'QMUIKit', '~> 4.7.0'
+  pod 'QMUIKit', '4.7.0'
 
   #pod 'QMUIKit/QMUIMainFrame'
  
