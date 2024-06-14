@@ -10,8 +10,11 @@
 #endif
 #endif
 
+#import "GGFuncSliderCommenDefines.h"
 #import "GGFuncSliderDefine.h"
 #import "UIBaseFuncSliderControllerRefreshProtocol.h"
+#import "UIColor+GGFuncSlider.h"
+#import "UIImage+GGFuncSlider.h"
 #import "GGFuncSliderHeader.h"
 #import "UIBaseFuncSliderController.h"
 #import "UIBaseFuncSliderMainControllerProtocol.h"

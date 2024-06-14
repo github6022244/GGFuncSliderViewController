@@ -6,7 +6,7 @@
 //
 
 #import "UIBasePagerView.h"
-#import <QMUIKit/QMUICommonDefines.h>
+//#import <QMUIKit/QMUICommonDefines.h>
 
 @interface UIBasePagerView ()<UIScrollViewDelegate>
 

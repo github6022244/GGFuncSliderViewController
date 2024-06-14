@@ -7,9 +7,13 @@
 //
 
 #import "UIBaseFuncSliderController.h"
-#import <QMUIKit/QMUICommonDefines.h>
-#import <QMUIKit/UIColor+QMUI.h>
-#import <QMUIKit/UIImage+QMUI.h>
+//#import <QMUIKit/QMUICommonDefines.h>
+//#import <QMUIKit/UIColor+QMUI.h>
+//#import <QMUIKit/UIImage+QMUI.h>
+#import "UIImage+GGFuncSlider.h"
+#import "GGFuncSliderCommenDefines.h"
+#import "UIColor+GGFuncSlider.h"
+#import "UIColor+GGFuncSlider.h"
 
 @interface UIBaseFuncSliderController ()
 
@@ -65,7 +69,7 @@
         UIColor *firstColor = [self navigationBarDefaultAndFullColor].firstObject;
         NSAssert(firstColor, @"在 - (NSArray<UIColor *> *)navigationBarDefaultAndFullColor; 中返回颜色数组");
         
-        UIImage *bgImage = [UIImage qmui_imageWithColor:firstColor];
+        UIImage *bgImage = [UIImage imageWithColor:firstColor];
 //        [self.navigationController.navigationBar setBackgroundImage:bgImage forBarMetrics:UIBarMetricsDefault];
         self.navigationController.navigationBar.tintColor = firstColor;
         self.navigationController.navigationBar.shadowImage = bgImage;
@@ -83,7 +87,7 @@
     _pagerView.basePagerDelegate = self;
     self.pagerView.mainTableView.gestureDelegate = self;
     [self.view addSubview:self.pagerView];
-    self.pagerView.pinSectionHeaderVerticalOffset = NavigationContentTop;
+    self.pagerView.pinSectionHeaderVerticalOffset = GGFuncSliderNavigationContentTop;
 
     self.categoryView.listContainer = (id<JXCategoryViewListContainer>)self.pagerView.listContainerView;
     
@@ -207,19 +211,19 @@
     self.categoryView.contentEdgeInsetLeft = 0.0;
     self.categoryView.contentEdgeInsetRight = 0.0;
     self.categoryView.cellSpacing = 0.0;
-    self.categoryView.cellWidth = SCREEN_WIDTH / self.categoryView.titles.count;
+    self.categoryView.cellWidth = GGFuncSliderSCREEN_WIDTH / self.categoryView.titles.count;
     
     self.categoryView.backgroundColor = [UIColor whiteColor];
     self.categoryView.delegate = self;
-    self.categoryView.titleSelectedColor = [UIColor qmui_colorWithHexString:@"#333333"];
-    self.categoryView.titleFont = UIFontMake(14);
-    self.categoryView.titleSelectedFont = UIFontBoldMake(14);
-    self.categoryView.titleColor = [UIColor qmui_colorWithHexString:@"#666666"];
+    self.categoryView.titleSelectedColor = [UIColor colorWithHexString:@"#333333"];
+    self.categoryView.titleFont = GGFuncSliderUIFontMake(14);
+    self.categoryView.titleSelectedFont = GGFuncSliderUIFontBoldMake(14);
+    self.categoryView.titleColor = [UIColor colorWithHexString:@"#666666"];
     self.categoryView.titleColorGradientEnabled = YES;
     self.categoryView.titleLabelZoomEnabled = YES;
     self.categoryView.contentScrollViewClickTransitionAnimationEnabled = NO;
     self.categoryView.separatorLineShowEnabled = YES;
-    self.categoryView.separatorLineColor = [UIColor qmui_colorWithHexString:@"#EBEBEB"];
+    self.categoryView.separatorLineColor = [UIColor colorWithHexString:@"#EBEBEB"];
     self.categoryView.separatorLineSize = CGSizeMake(1/[UIScreen mainScreen].scale, 10);
 
     JXCategoryIndicatorLineView *lineView = [[JXCategoryIndicatorLineView alloc] init];
@@ -297,9 +301,9 @@
             
             UIColor *fullColor = colorArray.lastObject;
             
-            UIColor *targetColor = [defaultColor qmui_transitionToColor:fullColor progress:percent];
+            UIColor *targetColor = [defaultColor transitionToColor:fullColor progress:percent];
             
-            UIImage *navBackImage = [UIImage qmui_imageWithColor:targetColor];
+            UIImage *navBackImage = [UIImage imageWithColor:targetColor];
             
             [self.navigationController.navigationBar setBackgroundImage:navBackImage forBarMetrics:UIBarMetricsDefault];
             

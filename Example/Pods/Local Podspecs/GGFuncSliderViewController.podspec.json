@@ -1,6 +1,6 @@
 {
   "name": "GGFuncSliderViewController",
-  "version": "0.1.9",
+  "version": "0.2.1",
   "summary": "iOS 基于 JXCategoryView 封装的分类栏控制器",
   "description": "TODO: Add long description of the pod here.",
   "homepage": "https://github.com/github6022244/GGFuncSliderViewController",
@@ -13,7 +13,7 @@
   },
   "source": {
     "git": "https://github.com/github6022244/GGFuncSliderViewController.git",
-    "tag": "0.1.9"
+    "tag": "0.2.1"
   },
   "platforms": {
     "ios": "13.0"
@@ -21,12 +21,9 @@
   "source_files": "GGFuncSliderViewController/Classes/**/*",
   "dependencies": {
     "JXPagingView/Pager": [
-      "2.1.2"
+
     ],
     "JXCategoryView": [
-      "1.6.1"
-    ],
-    "QMUIKit": [
 
     ]
   }

@@ -7,7 +7,7 @@
 //
 
 #import "UIBaseFuncSliderSubController.h"
-#import <QMUIKit/QMUILog.h>
+//#import <QMUIKit/QMUILog.h>
 
 @interface UIBaseFuncSliderSubController ()
 
