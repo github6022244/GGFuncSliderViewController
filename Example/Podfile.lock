@@ -2,8 +2,8 @@ PODS:
   - GGFuncSliderViewController (0.2.2):
     - JXCategoryView
     - JXPagingView/Pager
-  - JXCategoryView (1.6.1)
-  - JXPagingView/Pager (2.1.2)
+  - JXCategoryView (1.6.8)
+  - JXPagingView/Pager (2.1.3)
   - MJRefresh (3.7.9)
   - QMUIKit (4.7.0):
     - QMUIKit/QMUIComponents (= 4.7.0)
@@ -323,12 +323,12 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   GGFuncSliderViewController: 5b4c25e4ce569f7645267ce24155929e60686ea5
-  JXCategoryView: 7b1ee69ede4843c581688afe84d0f047723262f2
-  JXPagingView: 90924b364a2ff7e94db534fad1fa50925ff69ee4
+  JXCategoryView: 262d503acea0b1278c79a1c25b7332ffaef4d518
+  JXPagingView: afdd2e9af09c90160dd232b970d603cc6e7ddd0e
   MJRefresh: ff9e531227924c84ce459338414550a05d2aea78
   QMUIKit: 2fc09ba9a31a44a4081916ed4c41467bac798821
   YYText: 5c461d709e24d55a182d1441c41dc639a18a4849
 
-PODFILE CHECKSUM: 850d0ee6109ecb2e3beb8fa6aff4609755232f32
+PODFILE CHECKSUM: 53978789e253e4b73be6704848b01e411e2b2912
 
 COCOAPODS: 1.16.2
