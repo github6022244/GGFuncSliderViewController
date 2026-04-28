@@ -24,6 +24,7 @@
     "JXCategoryView": []
   },
   "pod_target_xcconfig": {
-    "IPHONEOS_DEPLOYMENT_TARGET": "13.0"
+    "IPHONEOS_DEPLOYMENT_TARGET": "13.0",
+    "EXCLUDED_ARCHS[sdk=iphonesimulator*]": "i386"
   }
 }
