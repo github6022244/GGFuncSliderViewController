@@ -322,7 +322,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  GGFuncSliderViewController: 5b4c25e4ce569f7645267ce24155929e60686ea5
+  GGFuncSliderViewController: 936d921e22849954f8f326a6d8362718824c391c
   JXCategoryView: 262d503acea0b1278c79a1c25b7332ffaef4d518
   JXPagingView: afdd2e9af09c90160dd232b970d603cc6e7ddd0e
   MJRefresh: ff9e531227924c84ce459338414550a05d2aea78

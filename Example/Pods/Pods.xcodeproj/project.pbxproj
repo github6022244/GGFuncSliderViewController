@@ -4073,9 +4073,9 @@
 			};
 			name = Debug;
 		};
-		667C5110D17B9BC9A818B1AC56D0A319 /* Release */ = {
+		5CF41261A7864BE45C5EFE144B469C98 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0209791474C2E4DB425180DD24E6FC89 /* GGFuncSliderViewController.release.xcconfig */;
+			baseConfigurationReference = AC877FA97A9FDFF0C80B7D7F15B149E6 /* GGFuncSliderViewController.debug.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_ENABLE_OBJC_WEAK = NO;
@@ -4105,11 +4105,10 @@
 				SWIFT_INSTALL_OBJC_HEADER = YES;
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
-			name = Release;
+			name = Debug;
 		};
 		7C1D90EEDE54A93F809444D58025D50C /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -4604,9 +4603,9 @@
 			};
 			name = Debug;
 		};
-		A70321B7EF05F8A69D9D86118C4FB9D1 /* Debug */ = {
+		AE265421574E8AB3E67E22908ECC6357 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = AC877FA97A9FDFF0C80B7D7F15B149E6 /* GGFuncSliderViewController.debug.xcconfig */;
+			baseConfigurationReference = 0209791474C2E4DB425180DD24E6FC89 /* GGFuncSliderViewController.release.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_ENABLE_OBJC_WEAK = NO;
@@ -4636,10 +4635,11 @@
 				SWIFT_INSTALL_OBJC_HEADER = YES;
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
-			name = Debug;
+			name = Release;
 		};
 		B6DBB083ABB6188A8F31D528BC706E4F /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -4876,8 +4876,8 @@
 		AAC20249A15BBB5FC6B7DD7BA55E23A6 /* Build configuration list for PBXNativeTarget "GGFuncSliderViewController" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A70321B7EF05F8A69D9D86118C4FB9D1 /* Debug */,
-				667C5110D17B9BC9A818B1AC56D0A319 /* Release */,
+				5CF41261A7864BE45C5EFE144B469C98 /* Debug */,
+				AE265421574E8AB3E67E22908ECC6357 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -46,4 +46,9 @@ TODO: Add long description of the pod here.
 #  s.dependency 'JXPagingView/Pager', '2.1.2'
 #  s.dependency 'JXCategoryView', '1.6.1'
 #  s.dependency 'QMUIKit'
+
+# 注意：这行代码必须写在 spec 的闭包内部
+  s.pod_target_xcconfig = {
+    'IPHONEOS_DEPLOYMENT_TARGET' => '13.0'
+  }
 end
