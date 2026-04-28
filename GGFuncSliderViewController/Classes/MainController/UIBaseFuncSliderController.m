@@ -87,7 +87,7 @@
     _pagerView.basePagerDelegate = self;
     self.pagerView.mainTableView.gestureDelegate = self;
     [self.view addSubview:self.pagerView];
-    self.pagerView.pinSectionHeaderVerticalOffset = GGFuncSliderNavigationContentTop;
+//    self.pagerView.pinSectionHeaderVerticalOffset = GGFuncSliderNavigationContentTop;
 
     self.categoryView.listContainer = (id<JXCategoryViewListContainer>)self.pagerView.listContainerView;
     
@@ -211,7 +211,7 @@
     self.categoryView.contentEdgeInsetLeft = 0.0;
     self.categoryView.contentEdgeInsetRight = 0.0;
     self.categoryView.cellSpacing = 0.0;
-    self.categoryView.cellWidth = GGFuncSliderSCREEN_WIDTH / self.categoryView.titles.count;
+    self.categoryView.cellWidth = self.view.bounds.size.width / self.categoryView.titles.count;
     
     self.categoryView.backgroundColor = [UIColor whiteColor];
     self.categoryView.delegate = self;
